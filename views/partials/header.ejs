@@ -9,8 +9,26 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/styles.css" />
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
+  <script>
+    // Loaded on every page (not just /admin/login) because Netlify's invite/
+    // password-recovery emails link to the site root, not any specific page
+    // — the widget only acts on an invite/confirmation/recovery token in the
+    // URL hash, which a normal visitor's URL never has, so this is a no-op
+    // for everyone except someone who just clicked one of those email links.
+    netlifyIdentity.init();
+    netlifyIdentity.on('login', async (user) => {
+      try {
+        const res = await fetch('/admin/session', {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + (user.token && user.token.access_token) },
+        });
+        if (res.ok) window.location.href = '/admin';
+      } catch (e) { /* not an admin invite/login — ignore */ }
+    });
+  </script>
   <header class="site-header">
     <div class="wrap">
       <a class="brand" href="/">NOI<span>R</span></a>
