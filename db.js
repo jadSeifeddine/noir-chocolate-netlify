@@ -6,10 +6,12 @@ const { Pool } = require('pg');
 
 // Netlify DB (Neon) injects its own connection string at runtime rather than
 // a hand-set DATABASE_URL — prefer that when present (i.e. actually running
-// on Netlify), and fall back to a plain DATABASE_URL for local dev or any
-// other host.
+// on Netlify, dev or prod), and fall back to a plain DATABASE_URL for local
+// dev or any other host. `NETLIFY` isn't actually set in the Functions
+// runtime (only URL/SITE_NAME/SITE_ID are documented as available there) —
+// SITE_ID is what's reliably present in both `netlify dev` and production.
 let connectionString = process.env.DATABASE_URL;
-if (process.env.NETLIFY) {
+if (process.env.SITE_ID) {
   connectionString = require('@netlify/database').getConnectionString();
 }
 
@@ -26,7 +28,7 @@ const pool = new Pool({
   // Serverless functions can spin up many concurrent containers, each with
   // its own pool — keep each pool small so a traffic spike doesn't blow past
   // Neon's connection limit. Fine for this app's read/write volume either way.
-  max: process.env.NETLIFY ? 3 : 10,
+  max: process.env.SITE_ID ? 3 : 10,
 });
 
 pool.on('error', (err) => {

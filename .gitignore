@@ -9,3 +9,4 @@ scratch-*.js
 secrets.txt
 *.log
 .netlify/
+deno.lock

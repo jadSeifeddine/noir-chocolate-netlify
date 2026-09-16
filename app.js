@@ -14,11 +14,20 @@ const { db, pool, migrate } = require('./db');
 
 const app = express();
 const isProd = process.env.NODE_ENV === 'production';
-// Set by both `netlify dev` and production Netlify Functions — false when
-// running as a plain local server (`node server.js`) against a Docker/local
-// Postgres, which is when uploads fall back to writing to disk instead of
-// Netlify Blobs (Blobs needs a real or emulated Netlify site context).
-const onNetlify = !!process.env.NETLIFY;
+// Under esbuild bundling (Netlify Functions, incl. `netlify dev`), every
+// __dirname in the bundle collapses to the function entry file's directory
+// (netlify/functions), not this file's own — path.join(__dirname, 'views')
+// would resolve to netlify/functions/views, which doesn't exist. The
+// function's actual working directory is its deploy root, where
+// `included_files` in netlify.toml places views/ and public/ at their
+// original repo-relative paths — process.cwd() reaches that correctly in
+// both plain `node server.js` (run from the repo root) and on Netlify.
+const BASE_DIR = process.cwd();
+// SITE_ID is set by both `netlify dev` and production Netlify Functions —
+// absent when running as a plain local server (`node server.js`) against a
+// Docker/local Postgres, which is when uploads fall back to writing to disk
+// instead of Netlify Blobs (Blobs needs a real or emulated Netlify site context).
+const onNetlify = !!process.env.SITE_ID;
 
 if (isProd && !process.env.SESSION_SECRET) throw new Error('SESSION_SECRET must be set in production.');
 if (isProd && !process.env.ADMIN_EMAIL) throw new Error('ADMIN_EMAIL must be set in production.');
@@ -30,7 +39,7 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAIL || '')
 
 // ---------- View engine & middleware ----------
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(BASE_DIR, 'views'));
 app.set('trust proxy', 1); // behind Netlify's / Dokploy's reverse proxy
 
 // Adds the standard protective response headers (X-Frame-Options,
@@ -58,7 +67,7 @@ app.use(helmet({
   },
 }));
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(BASE_DIR, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(session({
@@ -82,7 +91,7 @@ app.use(session({
 // instead of living in public/uploads. Local `node server.js` (no Netlify
 // context) keeps writing straight to public/uploads for simplicity.
 const TILE_SIZE = 1000;
-const UPLOAD_DIR = path.join(__dirname, 'public', 'uploads');
+const UPLOAD_DIR = path.join(BASE_DIR, 'public', 'uploads');
 const BLOBS_STORE = 'product-images';
 
 const upload = multer({
