@@ -3,12 +3,7 @@
 // Seeds the Noir database with categories, a starter catalog, and
 // self-contained SVG placeholder images. Safe to re-run: it resets content.
 
-const path = require('node:path');
-const fs = require('node:fs');
 const { db, pool, migrate } = require('./db');
-
-const UPLOADS = path.join(__dirname, 'public', 'uploads');
-fs.mkdirSync(UPLOADS, { recursive: true });
 
 function slugify(s) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -40,9 +35,12 @@ function makePlaceholder(name, emoji, slug, tint = 'coral') {
   <text x="400" y="612" font-family="Georgia, serif" font-size="22" letter-spacing="8"
         text-anchor="middle" fill="#fbeee7">N O I R</text>
 </svg>`;
-  const file = `seed-${slug}.svg`;
-  fs.writeFileSync(path.join(UPLOADS, file), svg, 'utf8');
-  return `/uploads/${file}`;
+  // A data URI rather than a written file — seed.js has no reliable place to
+  // write to (a plain local disk locally, but Netlify Functions' filesystem
+  // is read-only/ephemeral), and these are small, static, decorative
+  // placeholders, so embedding them directly is simpler than routing them
+  // through Blobs like a real admin-uploaded photo.
+  return `data:image/svg+xml;base64,${Buffer.from(svg, 'utf8').toString('base64')}`;
 }
 
 const categories = [
@@ -202,6 +200,11 @@ async function main() {
   console.log('Placeholder images written to public/uploads/.');
 }
 
-main()
+// Exported (in addition to running as a script) so a one-off Netlify
+// Function can `require('./seed')`, `await` this same promise, and get a
+// real success/failure result — see netlify/functions/seed-once.js.
+const ranMain = main();
+module.exports = ranMain;
+ranMain
   .catch((err) => { console.error(err); process.exitCode = 1; })
   .finally(() => pool.end());

@@ -4,16 +4,15 @@ require('dotenv').config();
 const crypto = require('node:crypto');
 const { Pool } = require('pg');
 
-// Netlify DB (Neon) injects its own connection string at runtime rather than
-// a hand-set DATABASE_URL — prefer that when present (i.e. actually running
-// on Netlify, dev or prod), and fall back to a plain DATABASE_URL for local
-// dev or any other host. `NETLIFY` isn't actually set in the Functions
-// runtime (only URL/SITE_NAME/SITE_ID are documented as available there) —
-// SITE_ID is what's reliably present in both `netlify dev` and production.
-let connectionString = process.env.DATABASE_URL;
-if (process.env.SITE_ID) {
-  connectionString = require('@netlify/database').getConnectionString();
-}
+// @netlify/database's automatic connection-string injection only works for
+// Netlify's native (v2) function format — this app runs as a single Express
+// app in Lambda compatibility mode (via serverless-http) to reuse the
+// existing routes/views, and Netlify's own docs say that mode has to be
+// given the connection string manually rather than relying on
+// getConnectionString(). So DATABASE_URL is just set directly as a Netlify
+// env var (copied once from the Netlify Database dashboard after it
+// auto-provisions on deploy), same as any other host.
+const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
   throw new Error('DATABASE_URL is not set. Copy .env.example to .env and fill it in for local dev.');
@@ -108,6 +107,20 @@ db.transaction = async function transaction(fn) {
 // ---------- Schema ----------
 async function migrate() {
   await pool.query(`
+    -- connect-pg-simple's own createTableIfMissing normally creates this by
+    -- reading a table.sql file that ships alongside the package — a file
+    -- read that breaks once bundled into a Netlify Function (same class of
+    -- issue as views/, see app.js's BASE_DIR comment), since the package's
+    -- own __dirname no longer points at its real location post-bundle. This
+    -- is the same schema connect-pg-simple would create; createTableIfMissing
+    -- is left off in app.js's session config so it never tries that read.
+    CREATE TABLE IF NOT EXISTS session (
+      sid    VARCHAR NOT NULL COLLATE "default" PRIMARY KEY,
+      sess   JSON NOT NULL,
+      expire TIMESTAMP(6) NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS session_expire_idx ON session (expire);
+
     CREATE TABLE IF NOT EXISTS categories (
       id     SERIAL PRIMARY KEY,
       name   TEXT NOT NULL UNIQUE,

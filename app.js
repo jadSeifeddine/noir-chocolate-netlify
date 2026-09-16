@@ -38,6 +38,13 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAIL || '')
   .split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
 
 // ---------- View engine & middleware ----------
+// Registered explicitly (rather than just app.set('view engine', 'ejs') and
+// letting Express require('ejs') internally by name) because that internal
+// require is a dynamic, runtime-computed one — esbuild's bundler can't see
+// it to bundle 'ejs' in, so it's missing entirely once deployed as a Netlify
+// Function. A static top-level require here is something esbuild does see.
+const ejs = require('ejs');
+app.engine('ejs', ejs.__express);
 app.set('view engine', 'ejs');
 app.set('views', path.join(BASE_DIR, 'views'));
 app.set('trust proxy', 1); // behind Netlify's / Dokploy's reverse proxy
@@ -71,7 +78,9 @@ app.use(express.static(path.join(BASE_DIR, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(session({
-  store: new pgSession({ pool, tableName: 'session', createTableIfMissing: true }),
+  // The session table is created in db.js's migrate() rather than via
+  // createTableIfMissing (see the comment there for why).
+  store: new pgSession({ pool, tableName: 'session' }),
   secret: process.env.SESSION_SECRET || 'noir-dev-secret',
   resave: false,
   saveUninitialized: true,
