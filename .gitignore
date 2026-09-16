@@ -1,0 +1,11 @@
+node_modules/
+public/uploads/p-*
+npm-debug.log*
+.DS_Store
+.env
+.env.*
+!.env.example
+scratch-*.js
+secrets.txt
+*.log
+.netlify/

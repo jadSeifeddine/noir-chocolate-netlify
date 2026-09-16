@@ -1,0 +1,119 @@
+<%- include('partials/header') %>
+
+<div class="wrap">
+  <div class="product reveal">
+    <div class="media"><img src="<%= product.image %>" alt="<%= product.name %>" /></div>
+    <div>
+      <div class="crumbs">
+        <a href="/shop">Menu</a>
+        <% if (category) { %>
+          <span class="sep">/</span>
+          <a href="/shop#sec-<%= category.slug %>"><%= category.name %></a>
+        <% } %>
+        <span class="sep">/</span>
+        <span class="here"><%= product.name %></span>
+      </div>
+      <h1 style="font-size:clamp(2.4rem,5vw,3.4rem)"><%= product.name %></h1>
+      <div class="rating-row">
+        <%- include('partials/rating', { rating: product.rating, count: product.rating_count, size: 'lg' }) %>
+        <% if (product.rating_count) { %>
+          <a href="#reviews" class="rating-jump">See all review<%= product.rating_count === 1 ? '' : 's' %></a>
+        <% } else { %>
+          <a href="#reviews" class="rating-jump">Be the first to review</a>
+        <% } %>
+      </div>
+      <% if (product.has_variants) { %>
+        <div class="radio-row" id="sizeSelect" style="margin:.6rem 0 0;">
+          <% product.variants.forEach((v, i) => { %>
+            <label><input type="radio" name="variant_display" value="<%= v.id %>" data-price="<%= v.price %>" <%= i === 0 ? 'checked' : '' %> /> <%= v.label %></label>
+          <% }) %>
+        </div>
+        <div class="price-lg" id="priceLg"><%= money(product.variants[0].price) %></div>
+      <% } else { %>
+        <div class="price-lg"><%= money(product.price) %></div>
+      <% } %>
+      <p class="desc"><%= product.description %></p>
+
+      <form action="/cart/add" method="POST" class="buy-row">
+        <input type="hidden" name="product_id" value="<%= product.id %>" />
+        <% if (product.has_variants) { %>
+          <input type="hidden" name="variant_id" id="variantIdField" value="<%= product.variants[0].id %>" />
+        <% } %>
+        <input type="hidden" name="redirect" value="/cart" />
+        <div class="qty">
+          <input type="number" name="qty" value="1" min="1" max="99" aria-label="Quantity" />
+        </div>
+        <button type="submit" class="btn btn--solid">Add to Bag</button>
+      </form>
+
+      <p class="muted" style="margin-top:1.5rem; font-size:.9rem;">Freshly made in Badaro · Pickup or delivery across Beirut</p>
+    </div>
+  </div>
+
+  <% if (related && related.length) { %>
+    <section class="block reveal" style="padding-top:1rem;">
+      <div class="section-head"><div class="eyebrow">You might also like</div></div>
+      <div class="grid">
+        <% related.forEach(p => { %>
+          <%- include('partials/product-card', { p }) %>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
+
+  <section class="block reviews-section reveal" id="reviews" style="padding-top:1rem;">
+    <div class="section-head" style="text-align:left; margin:0 0 2rem;">
+      <div class="eyebrow">Reviews</div>
+      <h2>What people are saying</h2>
+    </div>
+
+    <div class="layout-2" style="padding:0;">
+      <div>
+        <% if (reviews && reviews.length) { %>
+          <div class="review-list">
+            <% reviews.forEach(r => { %>
+              <div class="review">
+                <%- include('partials/rating', { rating: r.rating, hideMeta: true }) %>
+                <div class="review-name"><%= r.author_name %></div>
+                <% if (r.comment) { %><p class="review-comment"><%= r.comment %></p><% } %>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <p class="muted">No reviews yet — be the first to try <%= product.name %> and share what you thought.</p>
+        <% } %>
+      </div>
+
+      <div class="panel">
+        <h3 style="font-size:1.3rem;">Leave a Review</h3>
+        <form action="/product/<%= product.slug %>/review" method="POST">
+          <label>Your Rating</label>
+          <div class="star-input">
+            <input type="radio" id="r5" name="rating" value="5" required /><label for="r5" title="5 stars">★</label>
+            <input type="radio" id="r4" name="rating" value="4" /><label for="r4" title="4 stars">★</label>
+            <input type="radio" id="r3" name="rating" value="3" /><label for="r3" title="3 stars">★</label>
+            <input type="radio" id="r2" name="rating" value="2" /><label for="r2" title="2 stars">★</label>
+            <input type="radio" id="r1" name="rating" value="1" /><label for="r1" title="1 star">★</label>
+          </div>
+          <label for="author_name">Your Name (optional)</label>
+          <input id="author_name" name="author_name" type="text" maxlength="60" placeholder="e.g. Rania K." />
+          <label for="comment">Your Review (optional)</label>
+          <textarea id="comment" name="comment" rows="3" maxlength="600" placeholder="What did you think?"></textarea>
+          <button type="submit" class="btn btn--solid" style="margin-top:1.2rem;">Submit Review</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+
+<% if (product.has_variants) { %>
+<script>
+  document.getElementById('sizeSelect').addEventListener('change', (e) => {
+    if (e.target.name !== 'variant_display') return;
+    document.getElementById('priceLg').textContent = '$' + Number(e.target.dataset.price).toFixed(2);
+    document.getElementById('variantIdField').value = e.target.value;
+  });
+</script>
+<% } %>
+
+<%- include('partials/footer') %>

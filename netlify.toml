@@ -1,0 +1,21 @@
+[build]
+  publish = "public"
+  command = "npm install"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  # EJS templates aren't JS, so esbuild won't pull them into the function
+  # bundle on its own — without this, the deployed function 404s/500s on
+  # every render because views/ isn't there to find.
+  included_files = ["views/**"]
+
+# Everything not matched by a real file under `public/` (the storefront,
+# admin, cart, checkout, dynamically-uploaded /uploads/* images, etc.) is
+# handled by the single catch-all Express app running as a Netlify Function.
+# Actual static files in `public/` (css, placeholder.svg) are served directly
+# by Netlify's CDN and never reach this redirect.
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/app"
+  status = 200

@@ -1,0 +1,312 @@
+/* ===========================================================
+   NOIR — Admin back-office (sidebar layout)
+   Relies on variables from styles.css
+   =========================================================== */
+.admin-body { background: var(--blush); }
+
+.admin-shell { display: flex; min-height: 100vh; align-items: stretch; }
+
+/* ---------- Sidebar ---------- */
+.admin-side {
+  width: 244px; flex: 0 0 244px; background: var(--ink); color: #cbb5b0;
+  display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
+}
+.admin-brand {
+  font-family: var(--serif); font-weight: 600; font-size: 1.7rem; letter-spacing: .3em;
+  color: var(--blush); padding: 1.6rem 1.5rem 1.2rem; display: flex; align-items: baseline; gap: .1rem; text-decoration: none;
+}
+.admin-brand span { color: var(--coral); }
+.admin-brand small { font-family: var(--sans); font-size: .6rem; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); margin-left: .6rem; }
+.admin-nav { display: flex; flex-direction: column; padding: .5rem .8rem; gap: .2rem; flex: 1; }
+.admin-nav a {
+  display: flex; align-items: center; gap: .7rem; padding: .78rem .9rem; border-radius: 8px;
+  color: #cbb5b0; text-decoration: none; font-size: .9rem; letter-spacing: .02em; transition: .25s var(--ease);
+}
+.admin-nav a .ic { width: 18px; text-align: center; opacity: .8; font-size: .95rem; }
+.admin-nav a:hover { background: rgba(255,255,255,.06); color: #fff; }
+.admin-nav a.on { background: var(--coral); color: #fff; }
+.admin-nav a.on .ic { opacity: 1; }
+.admin-nav a.sub { color: var(--coral-soft); font-size: .82rem; margin-top: .3rem; }
+.admin-nav a.sub:hover { color: #fff; }
+.admin-side-foot { padding: 1rem 1.3rem 1.4rem; border-top: 1px solid rgba(255,255,255,.08); display: flex; flex-direction: column; gap: .7rem; }
+.admin-side-link { color: #cbb5b0; text-decoration: none; font-size: .82rem; letter-spacing: .04em; }
+.admin-side-link:hover { color: #fff; }
+.admin-logout { background: transparent; border: 1px solid rgba(255,255,255,.2); color: #cbb5b0; padding: .5rem .9rem;
+  border-radius: 6px; cursor: pointer; font-family: var(--sans); font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; width: 100%; }
+.admin-logout:hover { border-color: var(--coral); color: #fff; }
+
+/* ---------- Main ---------- */
+.admin-main { flex: 1; min-width: 0; padding: 2.2rem 2.6rem 4rem; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.6rem; flex-wrap: wrap; }
+.page-head .eyebrow { margin-bottom: .3rem; }
+.page-head h1 { font-size: 2.3rem; margin: 0; }
+.page-head .sub { color: var(--muted); font-size: .92rem; margin-top: .2rem; }
+.head-actions { display: flex; gap: .6rem; }
+
+/* ---------- Stat cards ---------- */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.8rem; }
+.stat { background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 1.3rem 1.4rem;
+  box-shadow: 0 6px 18px rgba(221,114,108,.05); transition: transform .35s var(--ease), box-shadow .35s var(--ease); }
+.stat:hover { transform: translateY(-3px); box-shadow: 0 14px 28px rgba(221,114,108,.12); }
+.stat .l { font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: .4rem; }
+.stat .n { font-family: var(--serif); font-weight: 600; font-size: 2.1rem; color: var(--ink); margin-top: .3rem; line-height: 1; }
+.stat .foot { font-size: .74rem; color: var(--muted); margin-top: .4rem; }
+.stat.badge-new { border-color: var(--coral-soft); background: linear-gradient(180deg, #fff, #fdeeea); }
+
+/* ---------- Panels / cards ---------- */
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; align-items: start; }
+.pcard { background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 1.3rem 1.4rem; box-shadow: 0 6px 18px rgba(221,114,108,.05); margin-bottom: 1.2rem; }
+.pcard h2 { font-size: 1.4rem; margin: 0 0 1rem; display: flex; align-items: center; justify-content: space-between; }
+.pcard h2 a { font-family: var(--sans); font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--coral-deep); text-decoration: none; }
+.pcard h2 a:hover { text-decoration: underline; }
+
+/* mini 7-day bar chart */
+.bars { display: flex; align-items: flex-end; gap: .6rem; height: 150px; padding-top: .5rem; }
+.bars .bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .5rem; height: 100%; justify-content: flex-end; }
+.bars .bar .fill { width: 100%; max-width: 40px; background: linear-gradient(180deg, var(--coral), var(--coral-deep)); border-radius: 6px 6px 0 0; min-height: 3px; transition: .3s; }
+.bars .bar .fill:hover { filter: brightness(1.05); }
+.bars .bar .bl { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.bars .bar .bv { font-size: .68rem; color: var(--ink); font-weight: 500; }
+
+/* horizontal ranked list (top sellers / by category) */
+.rank { display: flex; flex-direction: column; gap: .85rem; }
+.rank .row { display: grid; grid-template-columns: 1fr auto; gap: .3rem .8rem; align-items: center; }
+.rank .row .nm { font-size: .92rem; color: var(--ink); }
+.rank .row .vl { font-family: var(--serif); font-weight: 600; color: var(--coral-deep); font-size: 1rem; }
+.rank .row .track { grid-column: 1 / -1; height: 6px; background: var(--cream); border-radius: 6px; overflow: hidden; }
+.rank .row .track i { display: block; height: 100%; background: var(--coral); border-radius: 6px; }
+.rank .muted-sm { font-size: .78rem; color: var(--muted); }
+.rank .row.order-row { grid-template-columns: 1fr auto; align-items: center; }
+.rank .row.order-row .nm { text-decoration: none; }
+.order-meta { display: flex; align-items: center; gap: .7rem; }
+
+/* ---------- Tables ---------- */
+.tbl-wrap { background: var(--white); border: 1px solid var(--line); border-radius: 12px; overflow-x: auto; box-shadow: 0 6px 18px rgba(221,114,108,.05); }
+table.data { width: 100%; border-collapse: collapse; }
+/* Fixed layout so the th widths below are actually honored, not just used
+   as loose hints — auto layout would otherwise size the Name column to its
+   narrowest content and leave the extra row width sitting as dead space
+   before the last column, which is exactly what looked "empty". */
+table.cat-table { table-layout: fixed; }
+.tbl-wrap table.data { min-width: 620px; }
+table.data th, table.data td { text-align: left; padding: .9rem 1.1rem; border-bottom: 1px solid var(--line); font-size: .9rem; color: var(--ink-soft); vertical-align: middle; }
+table.data th { font-size: .66rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 400; background: var(--cream); }
+table.data tbody tr:hover { background: #fdf3ef; }
+table.data tr:last-child td { border-bottom: none; }
+table.data td .thumb-sm { width: 42px; height: 42px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); }
+table.data .name-cell { font-family: var(--serif); font-size: 1.12rem; color: var(--ink); }
+.mono { font-variant-numeric: tabular-nums; }
+
+/* ---------- Badges / pills ---------- */
+.badge { display: inline-flex; align-items: center; gap: .35rem; font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; padding: .28rem .7rem; border-radius: 40px; border: 1px solid var(--line); white-space: nowrap; }
+.badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.badge.new       { color: #c98a2b; background: #fdf1df; border-color: #f0dcb8; }
+.badge.preparing { color: #b5642b; background: #fbeadd; border-color: #f2d3bd; }
+.badge.ready     { color: #2f7fae; background: #e5f1f8; border-color: #c4e0ee; }
+.badge.completed { color: #4c8a58; background: #e7f4ea; border-color: #c3e3ca; }
+.badge.cancelled { color: #9a8a86; background: #f2ece9; border-color: var(--line); }
+.badge.avail     { color: #4c8a58; background: #e7f4ea; border-color: #c3e3ca; }
+.badge.sold      { color: #c9564b; background: #fbe6e3; border-color: #f0c9c3; }
+.badge.star      { color: var(--coral-deep); background: var(--coral-soft); border-color: var(--coral-soft); }
+.badge.star::before { display: none; }
+
+/* ---------- Filter tabs & toolbar ---------- */
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.1rem; flex-wrap: wrap; }
+.tabs { display: flex; gap: .4rem; flex-wrap: wrap; }
+.tabs a { padding: .5rem .95rem; border-radius: 40px; border: 1px solid var(--line); background: var(--white); color: var(--muted);
+  font-size: .78rem; text-decoration: none; transition: .18s; display: inline-flex; gap: .45rem; align-items: center; }
+.tabs a:hover { border-color: var(--coral); color: var(--ink); }
+.tabs a.on { background: var(--coral); border-color: var(--coral); color: #fff; }
+.tabs a .cnt { background: rgba(0,0,0,.08); border-radius: 30px; padding: 0 .45rem; font-size: .68rem; }
+.tabs a.on .cnt { background: rgba(255,255,255,.28); }
+.view-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.view-toggle a { padding: .5rem .9rem; font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-decoration: none; background: var(--white); }
+.view-toggle a.on { background: var(--ink); color: var(--blush); }
+.search-box { display: flex; gap: .5rem; }
+.search-box input { width: 240px; }
+
+/* ---------- Kanban board ---------- */
+.board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(230px, 1fr); gap: 1rem; overflow-x: auto; padding-bottom: 1rem; }
+.board .col { background: var(--cream); border: 1px solid var(--line); border-radius: 12px; padding: .8rem; min-height: 120px; }
+.board .col > h3 { font-family: var(--sans); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: .2rem .3rem 1rem; display: flex; justify-content: space-between; }
+.board .oc { background: var(--white); border: 1px solid var(--line); border-radius: 9px; padding: .8rem .9rem; margin-bottom: .7rem; text-decoration: none; display: block; transition: .18s; }
+.board .oc:hover { border-color: var(--coral); box-shadow: 0 6px 16px rgba(221,114,108,.12); }
+.board .oc .t { display: flex; justify-content: space-between; align-items: baseline; }
+.board .oc .cust { font-family: var(--serif); font-size: 1.1rem; color: var(--ink); }
+.board .oc .amt { font-family: var(--serif); font-weight: 600; color: var(--coral-deep); }
+.board .oc .meta { font-size: .76rem; color: var(--muted); margin-top: .25rem; }
+
+/* ---------- Product grid (menu manage) ---------- */
+.mgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px,1fr)); gap: 1rem; }
+.mcard { background: var(--white); border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+  box-shadow: 0 6px 18px rgba(221,114,108,.05); transition: transform .35s var(--ease), box-shadow .35s var(--ease), border-color .35s var(--ease); }
+.mcard:hover { transform: translateY(-3px); box-shadow: 0 16px 30px rgba(221,114,108,.12); border-color: var(--coral-soft); }
+.mcard .top { position: relative; aspect-ratio: 16/10; background: var(--cream); }
+.mcard .top img { width: 100%; height: 100%; object-fit: cover; }
+.mcard.sold .top img { opacity: .5; }
+.mcard .top .flags { position: absolute; top: .5rem; left: .5rem; display: flex; gap: .3rem; }
+.mcard .info { padding: .85rem 1rem 1rem; }
+.mcard .info .nm { font-family: var(--serif); font-size: 1.2rem; color: var(--ink); }
+.mcard .info .meta { display: flex; justify-content: space-between; align-items: center; margin-top: .3rem; }
+.mcard .info .pr { font-family: var(--serif); font-weight: 600; color: var(--coral-deep); font-size: 1.15rem; }
+.mcard .info .cat { font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+/* Edit | Delete share the top row; the toggle spans full width below — so the
+   longest label ("Mark Sold Out") never wraps and buttons stay even. */
+.mcard .acts { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; padding: 0 1rem 1.1rem; }
+.mcard .acts form { display: block; margin: 0; }
+.mcard .acts .toggle-form { grid-column: 1 / -1; }
+.btn-mini { width: 100%; text-align: center; cursor: pointer; font-family: var(--sans); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase;
+  white-space: nowrap; padding: .55rem .5rem; border-radius: 7px; border: 1px solid var(--line); background: var(--white); color: var(--ink-soft); text-decoration: none; display: block; transition: .18s; }
+.btn-mini:hover { border-color: var(--coral); color: var(--coral-deep); }
+.btn-mini.danger:hover { border-color: var(--danger); color: var(--danger); }
+.btn-mini.warn { border-color: var(--coral-soft); color: var(--coral-deep); }
+
+/* ---------- Variant rows (product form) ---------- */
+.variant-row { display: flex; gap: .6rem; align-items: center; margin-bottom: .6rem; }
+.variant-row input[name="variant_label"] { flex: 1.5; }
+.variant-row input[name="variant_price"] { flex: .8; }
+.variant-row .btn-mini { width: auto; flex: 0 0 auto; display: inline-block; padding: .55rem .9rem; }
+
+/* ---------- Order detail ---------- */
+.od-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 1.2rem; align-items: start; }
+.kv { display: flex; justify-content: space-between; padding: .55rem 0; border-bottom: 1px dashed var(--line); font-size: .92rem; }
+.kv:last-child { border-bottom: none; }
+.kv .k { color: var(--muted); }
+.kv .v { color: var(--ink); text-align: right; max-width: 62%; }
+.od-total { display: flex; justify-content: space-between; font-family: var(--serif); font-weight: 600; font-size: 1.4rem; color: var(--ink); border-top: 1px solid var(--line); margin-top: .6rem; padding-top: .9rem; }
+
+.empty { text-align: center; color: var(--muted); padding: 4rem 1rem; background: var(--white); border: 1px dashed var(--line); border-radius: 12px; }
+.back-link { color: var(--muted); font-size: .8rem; text-decoration: none; }
+.back-link:hover { color: var(--ink); }
+
+/* ---------- Move up/down (categories + product reordering) ---------- */
+.move-btns { display: flex; flex-direction: column; gap: .2rem; }
+.move-btns form { margin: 0; }
+.move-btn { width: 26px; height: 22px; border: 1px solid var(--line); background: var(--white); color: var(--muted);
+  border-radius: 5px; cursor: pointer; font-size: .62rem; line-height: 1; transition: .15s; }
+.move-btn:hover:not(:disabled) { border-color: var(--coral); color: var(--coral-deep); }
+.move-btn:disabled { opacity: .3; cursor: default; }
+.move-btns--card { position: absolute; top: .5rem; right: .5rem; background: rgba(255,255,255,.9); border-radius: 7px; padding: .2rem; }
+
+/* ---------- Order search toolbar ---------- */
+.order-search { margin-bottom: 1.1rem; align-items: center; }
+.order-search input[type="date"] { width: 155px; }
+
+/* buttons reused from styles.css: .btn, .btn--solid, .btn--ghost, .btn--sm */
+
+/* ---------- Mobile-only components (hidden on desktop) ---------- */
+.show-mobile { display: none; }
+.action-banner, .insights-cta, .order-cards { display: none; }
+
+.action-banner { align-items: center; justify-content: space-between; gap: 1rem; text-decoration: none;
+  background: var(--coral); color: #fff; padding: 1rem 1.2rem; border-radius: 12px; margin-bottom: 1.1rem;
+  box-shadow: 0 8px 20px rgba(221,114,108,.25); }
+.action-banner strong { font-family: var(--serif); font-size: 1.35rem; }
+.action-banner .go { font-size: .8rem; letter-spacing: .04em; white-space: nowrap; }
+
+.insights-cta { align-items: center; justify-content: space-between; gap: 1rem; text-decoration: none;
+  background: var(--white); border: 1px solid var(--line); color: var(--ink); padding: .95rem 1.2rem; border-radius: 12px; margin-bottom: 1.1rem; }
+.insights-cta span:first-child { font-family: var(--serif); font-size: 1.15rem; }
+.insights-cta .go { font-size: .74rem; color: var(--muted); text-align: right; }
+
+.ocm { display: block; background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: .9rem 1rem;
+  text-decoration: none; box-shadow: 0 4px 14px rgba(221,114,108,.05); }
+.ocm .r1 { display: flex; justify-content: space-between; align-items: baseline; gap: .8rem; }
+.ocm .cust { font-family: var(--serif); font-size: 1.28rem; color: var(--ink); }
+.ocm .amt { font-family: var(--serif); font-weight: 600; color: var(--coral-deep); font-size: 1.15rem; white-space: nowrap; }
+.ocm .r2 { display: flex; align-items: center; gap: .6rem; margin: .55rem 0 .25rem; flex-wrap: wrap; }
+.ocm .meta { font-size: .78rem; color: var(--muted); }
+
+.ccard { background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: .9rem 1rem;
+  box-shadow: 0 4px 14px rgba(221,114,108,.05); }
+.name-form, .ccard-name { display: flex; gap: .5rem; align-items: center; }
+.name-form input, .ccard-name input { flex: 1; min-width: 0; }
+.name-form .btn-mini, .ccard-name .btn-mini { width: auto; flex: 0 0 auto; }
+.ccard-row { display: flex; align-items: center; justify-content: space-between; margin: .7rem 0; }
+.ccard-row .meta { font-size: .82rem; color: var(--muted); }
+.ccard-row .move-btns { flex-direction: row; }
+.ccard-delete .btn-mini { width: auto; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1000px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .cols, .od-grid { grid-template-columns: 1fr; }
+}
+
+/* The sidebar becomes a top bar the moment there's no longer room for a
+   fixed 244px rail *plus* the orders table beside it. This threshold is
+   measured, not guessed: the table's *real* rendered width (driven by its
+   actual content — names, phone numbers, the "Placed" timestamp — not just
+   its 620px min-width floor) needs ~856px alongside the sidebar, which
+   measured out to fitting with zero scroll exactly at 1200px viewport
+   width and still needing internal scroll at 1150px. 1240px keeps a
+   deliberate margin above that measured fit point, since a longer
+   customer name or phone number than what's in today's data would need a
+   few more pixels — better to switch a little early than let the table
+   silently start needing scroll again the moment content gets longer.
+   Below this, keep the mobile layout; above it, keep the full desktop
+   layout — don't switch any sooner than the content actually requires.
+   This also used to be two separate, uncoordinated breakpoints (720px for
+   the sidebar, 600px for the orders table), which left a gap where the
+   sidebar was already full desktop width but the table next to it didn't
+   actually fit, forcing horizontal scroll anyway. One breakpoint, backed
+   by a real measurement, closes that gap. */
+@media (max-width: 1240px) {
+  .admin-shell { flex-direction: column; }
+  .admin-side { width: 100%; flex: none; height: auto; position: sticky; top: 0; z-index: 50;
+    flex-direction: row; flex-wrap: wrap; align-items: center; gap: .1rem; }
+  .admin-brand { padding: .85rem 1rem; font-size: 1.4rem; }
+  .admin-nav { flex-direction: row; flex: 1 1 100%; order: 3; flex-wrap: wrap; padding: .4rem .6rem .6rem; gap: .35rem; }
+  .admin-nav a { padding: .5rem .85rem; font-size: .82rem; border-radius: 40px; }
+  .admin-nav a.sub { margin-top: 0; }
+  .admin-side-foot { flex-direction: row; border-top: none; padding: .4rem 1rem; margin-left: auto; gap: .5rem; align-items: center; }
+  .admin-logout { width: auto; padding: .42rem .8rem; }
+  .admin-main { padding: 1.3rem 1rem 3rem; }
+  .page-head { align-items: flex-start; }
+  .page-head h1 { font-size: 1.8rem; }
+  .toolbar { flex-direction: column; align-items: stretch; }
+  .toolbar .tabs { flex-wrap: wrap; }
+  .search-box { width: 100%; }
+  .search-box input { flex: 1; width: auto; }
+
+  /* Swap desktop tables/charts for phone-friendly components at this same
+     breakpoint — same reasoning as above, no separate lower breakpoint
+     that could leave a too-wide table on screen a moment longer. */
+  .hide-mobile { display: none !important; }
+  .show-mobile { display: block; }
+  .action-banner, .insights-cta { display: flex; }
+  .order-cards, .cat-cards { display: flex; flex-direction: column; gap: .7rem; }
+  .board { display: flex; flex-direction: column; gap: 1rem; overflow-x: visible; }
+  .board .col { min-height: auto; }
+}
+
+/* Phone: keep the desktop dashboard design, just make it clear & legible */
+@media (max-width: 600px) {
+  .page-head { flex-direction: column; align-items: stretch; gap: .9rem; }
+  .head-actions { flex-wrap: wrap; }
+  .head-actions .btn { flex: 1; justify-content: center; }
+
+  .stat-grid { grid-template-columns: 1fr 1fr; gap: .6rem; margin-bottom: 1.2rem; }
+  .stat { padding: .95rem 1rem; border-radius: 10px; }
+  .stat .l { font-size: .58rem; letter-spacing: .1em; }
+  .stat .n { font-size: 1.55rem; }
+  .stat .foot { font-size: .64rem; margin-top: .3rem; }
+
+  .pcard { padding: 1.1rem; border-radius: 10px; margin-bottom: 1rem; }
+  .pcard h2 { font-size: 1.25rem; margin-bottom: .8rem; }
+
+  /* 7-day chart: smaller, non-overlapping labels */
+  .bars { height: 120px; gap: .3rem; }
+  .bars .bar .fill { max-width: 30px; border-radius: 5px 5px 0 0; }
+  .bars .bar .bv { font-size: .56rem; }
+  .bars .bar .bl { font-size: .6rem; letter-spacing: .02em; }
+
+  .rank { gap: 1rem; }
+  .rank .row .nm { font-size: .9rem; }
+  .rank .row .vl { font-size: .95rem; }
+
+  /* recent orders: name on its own line, status + total below */
+  .rank .row.order-row { grid-template-columns: 1fr; gap: .4rem; padding-bottom: .3rem; border-bottom: 1px solid var(--line); }
+  .rank .row.order-row:last-child { border-bottom: none; }
+  .order-meta { justify-content: space-between; }
+}

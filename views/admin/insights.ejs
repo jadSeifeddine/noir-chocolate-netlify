@@ -1,0 +1,22 @@
+<%- include('partials/header') %>
+
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Analytics</div>
+    <h1>Insights</h1>
+    <div class="sub">Sales trends, best sellers, and where the money comes from.</div>
+  </div>
+  <a href="/admin" class="btn btn--ghost btn--sm">← Overview</a>
+</div>
+
+<div class="cols">
+  <div>
+    <%- include('partials/chart-week') %>
+    <%- include('partials/chart-sellers') %>
+  </div>
+  <div>
+    <%- include('partials/chart-category') %>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

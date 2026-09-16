@@ -1,0 +1,66 @@
+<%- include('partials/header') %>
+
+<h1 style="font-size:2.4rem;">Dashboard</h1>
+
+<div class="stat-grid">
+  <div class="stat"><div class="n"><%= stats.products %></div><div class="l">Products</div></div>
+  <div class="stat"><div class="n"><%= stats.orders %></div><div class="l">Total Orders</div></div>
+  <div class="stat"><div class="n"><%= stats.newOrders %></div><div class="l">New Orders</div></div>
+  <div class="stat"><div class="n"><%= money(stats.revenue) %></div><div class="l">Revenue</div></div>
+</div>
+
+<div class="section-title">
+  <h2>Products</h2>
+  <a href="/admin/products/new" class="btn btn--solid btn--sm">+ Add Product</a>
+</div>
+
+<table class="data">
+  <thead><tr><th></th><th>Name</th><th>Category</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>
+    <% products.forEach(p => { %>
+      <tr>
+        <td><img src="<%= p.image %>" alt="" /></td>
+        <td><%= p.name %> <% if (p.featured) { %><span class="pill new">★</span><% } %></td>
+        <td class="muted"><%= p.category_name || '—' %></td>
+        <td><%= money(p.price) %></td>
+        <td><% if (p.available) { %><span class="pill done">Available</span><% } else { %><span class="pill off">Hidden</span><% } %></td>
+        <td>
+          <div class="actions-inline">
+            <a href="/admin/products/<%= p.id %>/edit" class="btn btn--ghost btn--sm">Edit</a>
+            <form action="/admin/products/<%= p.id %>/delete" method="POST" onsubmit="return confirm('Delete <%= p.name.replace(/'/g, "") %>?')">
+              <button class="btn btn--ghost btn--sm" type="submit" style="border-color:var(--danger); color:var(--danger)">Delete</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+<div class="section-title" style="margin-top:3rem;">
+  <h2>Recent Orders</h2>
+</div>
+
+<% if (orders.length === 0) { %>
+  <p class="muted">No orders yet.</p>
+<% } else { %>
+  <table class="data">
+    <thead><tr><th>#</th><th>Customer</th><th>Phone</th><th>Method</th><th>Total</th><th>Status</th><th>When</th><th></th></tr></thead>
+    <tbody>
+      <% orders.forEach(o => { %>
+        <tr>
+          <td>#<%= o.id %></td>
+          <td><%= o.customer_name %></td>
+          <td class="muted"><%= o.phone %></td>
+          <td class="muted"><%= o.method %></td>
+          <td><%= money(o.total) %></td>
+          <td><span class="pill <%= o.status === 'new' ? 'new' : 'done' %>"><%= o.status %></span></td>
+          <td class="muted"><%= o.created_at %></td>
+          <td><a href="/admin/orders/<%= o.id %>" class="btn btn--ghost btn--sm">View</a></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+<% } %>
+
+<%- include('partials/footer') %>

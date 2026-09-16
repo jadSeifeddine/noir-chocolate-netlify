@@ -1,0 +1,12 @@
+<div class="pcard">
+  <h2>Revenue by Category</h2>
+  <div class="rank">
+    <% byCategory.forEach(c => { %>
+      <div class="row">
+        <span class="nm"><%= c.name %></span>
+        <span class="vl"><%= money(c.revenue) %></span>
+        <div class="track"><i style="width: <%= Math.round((c.revenue / maxCat) * 100) %>%"></i></div>
+      </div>
+    <% }) %>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<%
+  const path = currentPath || '';
+  const nav = {
+    overview: path === '/admin',
+    orders: path.indexOf('/admin/orders') === 0,
+    menu: path.indexOf('/admin/menu') === 0 || path.indexOf('/admin/products') === 0,
+    insights: path.indexOf('/admin/insights') === 0,
+    categories: path.indexOf('/admin/categories') === 0,
+  };
+%>
+<body class="admin-body">
+  <div class="admin-shell">
+    <aside class="admin-side grain">
+      <a class="admin-brand" href="/admin">NOI<span>R</span><small>Admin</small></a>
+      <nav class="admin-nav">
+        <a href="/admin" class="<%= nav.overview ? 'on' : '' %>"><span class="ic">▤</span> Overview</a>
+        <a href="/admin/orders" class="<%= nav.orders ? 'on' : '' %>"><span class="ic">◷</span> Orders</a>
+        <a href="/admin/menu" class="<%= nav.menu ? 'on' : '' %>"><span class="ic">☰</span> Menu &amp; Products</a>
+        <a href="/admin/categories" class="sub <%= nav.categories ? 'on' : '' %>"><span class="ic">▦</span> Categories</a>
+        <a href="/admin/products/new" class="sub"><span class="ic">＋</span> Add Product</a>
+        <a href="/admin/insights" class="<%= nav.insights ? 'on' : '' %>"><span class="ic">◔</span> Insights</a>
+      </nav>
+      <div class="admin-side-foot">
+        <a href="/" target="_blank" class="admin-side-link">View Site ↗</a>
+        <form action="/admin/logout" method="POST"><button type="submit" class="admin-logout">Log out</button></form>
+      </div>
+    </aside>
+    <main class="admin-main">

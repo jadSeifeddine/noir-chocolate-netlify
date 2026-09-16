@@ -1,0 +1,80 @@
+<%- include('partials/header') %>
+
+<a href="/admin/orders" class="back-link">← Back to orders</a>
+<div class="page-head" style="margin-top:.5rem;">
+  <div>
+    <div class="eyebrow">Order</div>
+    <h1>#<%= order.id %> · <%= order.customer_name %></h1>
+    <div class="sub"><%= formatDate(order.created_at) %></div>
+  </div>
+  <span class="badge <%= order.status %>" style="font-size:.72rem;"><%= order.status %></span>
+</div>
+
+<div class="od-grid">
+  <div class="pcard">
+    <h2>Items</h2>
+    <table class="data" style="border:none;">
+      <tbody>
+        <% items.forEach(it => { %>
+          <tr>
+            <td class="mono" style="width:40px;"><%= it.quantity %>×</td>
+            <td class="name-cell"><%= it.product_name %></td>
+            <td class="mono" style="text-align:right;"><%= money(it.unit_price * it.quantity) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <div class="od-total"><span>Total</span><span><%= money(order.total) %></span></div>
+  </div>
+
+  <div>
+    <div class="pcard">
+      <h2>Customer</h2>
+      <div class="kv"><span class="k">Name</span><span class="v"><%= order.customer_name %></span></div>
+      <div class="kv"><span class="k">Phone</span><span class="v"><%= order.phone %></span></div>
+      <div class="kv"><span class="k">Method</span><span class="v" style="text-transform:capitalize;"><%= order.method %></span></div>
+      <% if (order.method === 'delivery') { %>
+        <div class="kv"><span class="k">Address</span><span class="v"><%= order.address %></span></div>
+      <% } %>
+      <% if (order.notes) { %><div class="kv"><span class="k">Notes</span><span class="v"><%= order.notes %></span></div><% } %>
+    </div>
+
+    <div class="pcard">
+      <h2>Fulfillment</h2>
+      <div class="kv">
+        <span class="k">When</span>
+        <span class="v">
+          <% if (order.schedule_type === 'scheduled' && order.fulfill_at) { %>
+            <span class="badge ready" style="border:none;">Scheduled</span> <%= order.fulfill_at %>
+          <% } else { %>As soon as possible<% } %>
+        </span>
+      </div>
+      <% if (order.cake_message) { %>
+        <div class="kv"><span class="k">🎂 On the cake</span><span class="v">“<%= order.cake_message %>”</span></div>
+      <% } %>
+      <% if (order.is_gift) { %>
+        <div class="kv"><span class="k">🎁 Gift to</span><span class="v"><%= order.recipient_name %><%= order.recipient_phone ? ' · ' + order.recipient_phone : '' %></span></div>
+        <% if (order.recipient_address) { %><div class="kv"><span class="k">Gift address</span><span class="v"><%= order.recipient_address %></span></div><% } %>
+        <% if (order.gift_message) { %><div class="kv"><span class="k">Gift note</span><span class="v">“<%= order.gift_message %>”</span></div><% } %>
+      <% } %>
+      <% if (!order.cake_message && !order.is_gift && order.schedule_type !== 'scheduled') { %>
+        <p class="muted-sm">Standard order — nothing special.</p>
+      <% } %>
+    </div>
+
+    <div class="pcard">
+      <h2>Update Status</h2>
+      <form action="/admin/orders/<%= order.id %>/status" method="POST">
+        <input type="hidden" name="redirect" value="/admin/orders/<%= order.id %>" />
+        <select name="status" style="margin-bottom:.9rem; text-transform:capitalize;">
+          <% statuses.forEach(s => { %>
+            <option value="<%= s %>" <%= order.status === s ? 'selected' : '' %>><%= s %></option>
+          <% }) %>
+        </select>
+        <button type="submit" class="btn btn--solid btn--block">Save Status</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

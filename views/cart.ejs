@@ -1,0 +1,65 @@
+<%- include('partials/header') %>
+
+<div class="wrap">
+  <section class="block">
+    <div class="eyebrow">Your Bag</div>
+    <h2 style="margin-bottom:2rem;"><%= cart.items.length ? 'Review your order' : 'Ready when you are' %></h2>
+
+    <% if (cart.items.length === 0) { %>
+      <div class="notice">
+        <div class="mark">🍫</div>
+        <p class="muted">Your bag is empty.</p>
+        <a href="/shop" class="btn" style="margin-top:1rem;">Browse the Menu</a>
+      </div>
+    <% } else { %>
+      <div class="layout-2">
+        <div>
+          <% cart.items.forEach(it => { %>
+            <div class="cart-line">
+              <img src="<%= it.product.image %>" alt="<%= it.product.name %>" />
+              <div>
+                <div class="nm"><a href="/product/<%= it.product.slug %>"><%= it.product.name %></a></div>
+                <% if (it.variant) { %><div class="muted" style="font-size:.82rem;"><%= it.variant.label %></div><% } %>
+                <div class="muted" style="font-size:.85rem;"><%= money(it.price) %> each</div>
+                <div class="stepper" style="margin-top:.5rem;">
+                  <form action="/cart/update" method="POST">
+                    <input type="hidden" name="product_id" value="<%= it.product.id %>" />
+                    <% if (it.variant) { %><input type="hidden" name="variant_id" value="<%= it.variant.id %>" /><% } %>
+                    <input type="hidden" name="qty" value="<%= it.qty - 1 %>" />
+                    <button type="submit" aria-label="Remove one">−</button>
+                  </form>
+                  <span><%= it.qty %></span>
+                  <form action="/cart/update" method="POST">
+                    <input type="hidden" name="product_id" value="<%= it.product.id %>" />
+                    <% if (it.variant) { %><input type="hidden" name="variant_id" value="<%= it.variant.id %>" /><% } %>
+                    <input type="hidden" name="qty" value="<%= it.qty + 1 %>" />
+                    <button type="submit" aria-label="Add one more">+</button>
+                  </form>
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-family:var(--serif); font-weight:600; font-size:1.3rem; color:var(--coral-deep);"><%= money(it.line) %></div>
+                <form action="/cart/remove" method="POST" style="margin-top:.6rem;">
+                  <input type="hidden" name="product_id" value="<%= it.product.id %>" />
+                  <% if (it.variant) { %><input type="hidden" name="variant_id" value="<%= it.variant.id %>" /><% } %>
+                  <button class="back-link" type="submit" style="background:none; border:none; cursor:pointer; padding:0;">Remove</button>
+                </form>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+
+        <aside class="panel">
+          <h3 style="font-size:1.5rem;">Order Summary</h3>
+          <div class="summary"><span>Subtotal</span><span><%= money(cart.total) %></span></div>
+          <div class="summary"><span>Delivery</span><span>Calculated at checkout</span></div>
+          <div class="summary total"><span>Total</span><span><%= money(cart.total) %></span></div>
+          <a href="/checkout" class="btn btn--solid btn--block" style="margin-top:1.4rem;">Checkout</a>
+          <a href="/shop" class="btn btn--ghost btn--block" style="margin-top:.7rem;">Continue Shopping</a>
+        </aside>
+      </div>
+    <% } %>
+  </section>
+</div>
+
+<%- include('partials/footer') %>

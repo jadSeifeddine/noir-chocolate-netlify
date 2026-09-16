@@ -1,0 +1,9 @@
+<a class="card" href="/product/<%= p.slug %>">
+  <div class="thumb"><img src="<%= p.image %>" alt="<%= p.name %>" loading="lazy" /></div>
+  <div class="body">
+    <% if (p.featured) { %><span class="tag-featured">House Favourite</span><% } %>
+    <h3><%= p.name %></h3>
+    <%- include('rating', { rating: p.rating, count: p.rating_count }) %>
+    <div class="price"><%= p.has_variants ? 'From ' + money(p.min_price) : money(p.price) %></div>
+  </div>
+</a>

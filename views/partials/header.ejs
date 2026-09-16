@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <meta name="description" content="Noir — Chocolate, Coffee & Cakes. Your go-to sweet spot in Badaro, Beirut." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/">NOI<span>R</span></a>
+      <nav class="nav">
+        <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">Home</a>
+        <a href="/shop" class="<%= currentPath.startsWith('/shop') ? 'active' : '' %>">Menu</a>
+        <a href="/story" class="hide-sm <%= currentPath === '/story' ? 'active' : '' %>">Our Story</a>
+        <a href="/contact" class="<%= currentPath === '/contact' ? 'active' : '' %>">Visit</a>
+        <a href="/cart" class="bag">Bag<span class="count" id="navBagCount" style="<%= cartCount > 0 ? '' : 'display:none' %>"><%= cartCount %></span></a>
+      </nav>
+    </div>
+  </header>
+  <main>

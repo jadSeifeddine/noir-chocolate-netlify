@@ -1,0 +1,74 @@
+<%- include('partials/header') %>
+
+<section class="hero grain">
+  <div class="wrap">
+    <div class="eyebrow">Badaro · Beirut</div>
+    <h1>Sweet, decadent<br />&amp; unmistakably Noir.</h1>
+    <p class="lead">Handcrafted chocolate, slow-pulled coffee and cakes made fresh each morning — your go-to sweet spot in the heart of Badaro.</p>
+    <div class="hero-actions">
+      <a href="/shop" class="btn btn--solid">Explore the Menu</a>
+      <a href="/story" class="btn btn--ghost">Our Story</a>
+    </div>
+  </div>
+  <a href="#story" class="scroll-cue" aria-label="Scroll to our story">
+    <span>Scroll</span>
+    <span class="line"></span>
+  </a>
+</section>
+
+<div class="stripe reveal">
+  <div class="wrap">
+    <div class="item"><div class="k">Handcrafted</div><div class="v">In-house daily</div></div>
+    <div class="item"><div class="k">Delivery</div><div class="v">Across Beirut</div></div>
+    <div class="item"><div class="k">Coffee Bar</div><div class="v">House Badaro roast</div></div>
+    <div class="item"><div class="k">Made to Order</div><div class="v">Cakes &amp; boxes</div></div>
+  </div>
+</div>
+
+<section class="block">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">House Favourites</div>
+      <h2>Loved by Badaro</h2>
+      <p>A taste of what regulars keep coming back for. Browse the full menu for everything we make.</p>
+    </div>
+    <div class="grid reveal">
+      <% featured.forEach(p => { %>
+        <%- include('partials/product-card', { p }) %>
+      <% }) %>
+    </div>
+    <div style="text-align:center; margin-top:3rem;">
+      <a href="/shop" class="btn">View Full Menu</a>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="story" style="background:var(--cream); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="story reveal">
+      <div class="art grain brand-pattern"></div>
+      <div>
+        <div class="eyebrow">Our Story</div>
+        <p class="pull">Chocolate that tastes like it means it, made in small batches, by hand, right here in Badaro.</p>
+        <p class="muted">From a single obsessive counter to a full menu of chocolate, coffee, and cakes — all made fresh, never rushed.</p>
+        <a href="/story" class="btn btn--ghost" style="margin-top:1rem;">Read Our Story</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" style="padding-bottom:3rem;">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Explore</div>
+      <h2>Shop by Craving</h2>
+    </div>
+    <div class="cats reveal" style="margin-bottom:0;">
+      <% categories.forEach(c => { %>
+        <a href="/shop#sec-<%= c.slug %>"><%= c.name %></a>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

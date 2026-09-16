@@ -1,0 +1,12 @@
+<% var _count = typeof count !== 'undefined' ? count : 0; %>
+<% if (rating) { %>
+  <div class="rating<%= typeof size !== 'undefined' && size === 'lg' ? ' rating--lg' : '' %>" aria-label="Rated <%= rating.toFixed(1) %> out of 5<%= _count ? ' from ' + _count + ' reviews' : '' %>">
+    <span class="stars" style="--pct: <%= Math.round(Math.max(0, Math.min(1, rating / 5)) * 1000) / 10 %>%;">
+      <span class="stars-track">★★★★★</span>
+      <span class="stars-fill">★★★★★</span>
+    </span>
+    <% if (typeof hideMeta === 'undefined' || !hideMeta) { %>
+      <span class="rating-meta"><%= rating.toFixed(1) %> <% if (_count) { %><span class="muted">(<%= _count %>)</span><% } %></span>
+    <% } %>
+  </div>
+<% } %>

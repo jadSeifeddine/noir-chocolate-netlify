@@ -1,0 +1,65 @@
+<%- include('partials/header') %>
+
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Dashboard</div>
+    <h1>Overview</h1>
+    <div class="sub">A snapshot of how Noir is doing.</div>
+  </div>
+  <div class="head-actions">
+    <a href="/admin/orders?status=new" class="btn btn--ghost btn--sm">New orders (<%= stats.newOrders %>)</a>
+    <a href="/admin/products/new" class="btn btn--solid btn--sm">+ Add Product</a>
+  </div>
+</div>
+
+<!-- phone-only: lead with what needs action -->
+<% if (stats.newOrders > 0) { %>
+  <a href="/admin/orders?status=new" class="action-banner show-mobile">
+    <span><strong><%= stats.newOrders %></strong> new order<%= stats.newOrders > 1 ? 's' : '' %> need<%= stats.newOrders > 1 ? '' : 's' %> your attention</span>
+    <span class="go">Handle →</span>
+  </a>
+<% } %>
+
+<div class="stat-grid">
+  <div class="stat"><div class="l">Total Revenue</div><div class="n"><%= money(stats.revenue) %></div><div class="foot">All time</div></div>
+  <div class="stat"><div class="l">Revenue Today</div><div class="n"><%= money(stats.revToday) %></div><div class="foot">Since midnight</div></div>
+  <div class="stat"><div class="l">Avg. Order</div><div class="n"><%= money(stats.aov) %></div><div class="foot"><%= stats.orders %> orders total</div></div>
+  <div class="stat <%= stats.newOrders ? 'badge-new' : '' %>"><div class="l">Needs Action</div><div class="n"><%= stats.newOrders %></div><div class="foot">New orders to confirm</div></div>
+</div>
+
+<!-- phone-only: send the charts to their own page -->
+<a href="/admin/insights" class="insights-cta show-mobile">
+  <span>📈 View Insights</span>
+  <span class="go">Sales trends, top sellers &amp; more →</span>
+</a>
+
+<div class="cols">
+  <div>
+    <div class="hide-mobile"><%- include('partials/chart-week') %></div>
+    <div class="hide-mobile"><%- include('partials/chart-sellers') %></div>
+  </div>
+  <div>
+    <div class="hide-mobile"><%- include('partials/chart-category') %></div>
+
+    <div class="pcard">
+      <h2>Recent Orders <a href="/admin/orders">View all →</a></h2>
+      <% if (!recentOrders.length) { %>
+        <p class="muted-sm">No orders yet.</p>
+      <% } else { %>
+        <div class="rank">
+          <% recentOrders.forEach(o => { %>
+            <div class="row order-row">
+              <a class="nm" href="/admin/orders/<%= o.id %>">#<%= o.id %> · <%= o.customer_name %></a>
+              <div class="order-meta">
+                <span class="badge <%= o.status %>"><%= o.status %></span>
+                <span class="vl"><%= money(o.total) %></span>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

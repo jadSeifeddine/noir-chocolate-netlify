@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body>
+  <div class="login-shell">
+    <div class="login-card">
+      <div class="brand" style="font-size:2.2rem; letter-spacing:.3em;">NOI<span>R</span></div>
+      <div class="eyebrow" style="margin:1rem 0 2rem;">Admin Panel</div>
+      <div class="panel">
+        <% if (error) { %><div class="alert" id="login-error"><%= error %></div><% } %>
+        <button type="button" id="nf-login-btn" class="btn btn--solid btn--block">Log in with Netlify Identity</button>
+      </div>
+      <a href="/" style="display:inline-block; margin-top:1.5rem; color:var(--muted); font-size:.8rem;">← Back to site</a>
+    </div>
+  </div>
+  <script>
+    netlifyIdentity.init();
+
+    async function exchangeForAdminSession(user) {
+      try {
+        const token = user.token && user.token.access_token;
+        const res = await fetch('/admin/session', {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + token },
+        });
+        if (res.ok) { window.location.href = '/admin'; return; }
+        const data = await res.json().catch(() => ({}));
+        showError(data.error || 'Not authorized for admin access.');
+      } catch (e) {
+        showError('Login failed — please try again.');
+      }
+    }
+
+    function showError(message) {
+      let el = document.getElementById('login-error');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'login-error';
+        el.className = 'alert';
+        document.querySelector('.panel').prepend(el);
+      }
+      el.textContent = message;
+    }
+
+    document.getElementById('nf-login-btn').addEventListener('click', () => netlifyIdentity.open('login'));
+    netlifyIdentity.on('login', exchangeForAdminSession);
+    // Covers the case where the widget already holds a valid session from a
+    // previous visit (e.g. logging back in after our own session expired).
+    const existing = netlifyIdentity.currentUser();
+    if (existing) exchangeForAdminSession(existing);
+  </script>
+</body>
+</html>

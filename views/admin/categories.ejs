@@ -1,0 +1,105 @@
+<%- include('partials/header') %>
+
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Manage</div>
+    <h1>Categories</h1>
+    <div class="sub"><%= cats.length %> categories</div>
+  </div>
+</div>
+
+<div class="pcard" style="max-width:480px;">
+  <h2>Add a Category</h2>
+  <form action="/admin/categories" method="POST" style="display:flex; gap:.6rem; align-items:flex-end;">
+    <div style="flex:1;">
+      <label for="name" style="margin-top:0;">Category Name</label>
+      <input id="name" name="name" placeholder="e.g. Seasonal Specials" required />
+    </div>
+    <button type="submit" class="btn btn--solid">+ Add</button>
+  </form>
+</div>
+
+<% if (!cats.length) { %>
+  <div class="empty">No categories yet.</div>
+<% } else { %>
+  <!-- Desktop: table -->
+  <div class="tbl-wrap hide-mobile">
+    <table class="data cat-table">
+      <thead><tr><th style="width:80px;">Order</th><th style="width:55%;">Name</th><th style="width:15%;">Products</th><th style="width:140px;"></th></tr></thead>
+      <tbody>
+        <% cats.forEach((c, i) => { %>
+          <tr>
+            <td>
+              <div class="move-btns">
+                <form action="/admin/categories/<%= c.id %>/move" method="POST">
+                  <input type="hidden" name="direction" value="up" />
+                  <button type="submit" class="move-btn" <%= i === 0 ? 'disabled' : '' %> aria-label="Move up">▲</button>
+                </form>
+                <form action="/admin/categories/<%= c.id %>/move" method="POST">
+                  <input type="hidden" name="direction" value="down" />
+                  <button type="submit" class="move-btn" <%= i === cats.length - 1 ? 'disabled' : '' %> aria-label="Move down">▼</button>
+                </form>
+              </div>
+            </td>
+            <td>
+              <form action="/admin/categories/<%= c.id %>" method="POST" class="name-form">
+                <input name="name" value="<%= c.name %>" required />
+                <button type="submit" class="btn-mini">Save</button>
+              </form>
+            </td>
+            <td class="mono"><%= c.product_count %></td>
+            <%
+              const delMsg = (c.product_count
+                ? `This category has ${c.product_count} product(s). They will become uncategorised and hidden from the shop until reassigned. Delete anyway?`
+                : `Delete ${c.name}?`
+              ).replace(/'/g, '');
+            %>
+            <td>
+              <form action="/admin/categories/<%= c.id %>/delete" method="POST"
+                onsubmit="return confirm('<%= delMsg %>')">
+                <button type="submit" class="btn-mini danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Phone: stacked cards, same breakpoint as everywhere else in admin -->
+  <div class="cat-cards show-mobile">
+    <% cats.forEach((c, i) => { %>
+      <div class="ccard">
+        <form action="/admin/categories/<%= c.id %>" method="POST" class="ccard-name">
+          <input name="name" value="<%= c.name %>" required />
+          <button type="submit" class="btn-mini">Save</button>
+        </form>
+        <div class="ccard-row">
+          <span class="meta"><%= c.product_count %> product<%= c.product_count === 1 ? '' : 's' %></span>
+          <div class="move-btns">
+            <form action="/admin/categories/<%= c.id %>/move" method="POST">
+              <input type="hidden" name="direction" value="up" />
+              <button type="submit" class="move-btn" <%= i === 0 ? 'disabled' : '' %> aria-label="Move up">▲</button>
+            </form>
+            <form action="/admin/categories/<%= c.id %>/move" method="POST">
+              <input type="hidden" name="direction" value="down" />
+              <button type="submit" class="move-btn" <%= i === cats.length - 1 ? 'disabled' : '' %> aria-label="Move down">▼</button>
+            </form>
+          </div>
+        </div>
+        <%
+          const delMsgM = (c.product_count
+            ? `This category has ${c.product_count} product(s). They will become uncategorised and hidden from the shop until reassigned. Delete anyway?`
+            : `Delete ${c.name}?`
+          ).replace(/'/g, '');
+        %>
+        <form action="/admin/categories/<%= c.id %>/delete" method="POST"
+          onsubmit="return confirm('<%= delMsgM %>')" class="ccard-delete">
+          <button type="submit" class="btn-mini danger">Delete</button>
+        </form>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,17 @@
+<div class="pcard">
+  <h2>Top Sellers</h2>
+  <% if (!topSellers.length) { %>
+    <p class="muted-sm">No sales yet.</p>
+  <% } else {
+       const maxQty = Math.max.apply(null, topSellers.map(t => t.qty)); %>
+    <div class="rank">
+      <% topSellers.forEach(t => { %>
+        <div class="row">
+          <span class="nm"><%= t.product_name %></span>
+          <span class="vl"><%= t.qty %> sold</span>
+          <div class="track"><i style="width: <%= Math.round((t.qty / maxQty) * 100) %>%"></i></div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</div>

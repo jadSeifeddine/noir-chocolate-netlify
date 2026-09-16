@@ -1,0 +1,12 @@
+<div class="pcard">
+  <h2>Last 7 Days</h2>
+  <div class="bars">
+    <% days.forEach(d => { %>
+      <div class="bar" title="<%= money(d.rev) %>">
+        <div class="bv"><%= d.rev ? money(d.rev) : '' %></div>
+        <div class="fill" style="height: <%= Math.round((d.rev / maxDay) * 100) %>%"></div>
+        <div class="bl"><%= d.label %></div>
+      </div>
+    <% }) %>
+  </div>
+</div>

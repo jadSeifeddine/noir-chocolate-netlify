@@ -1,0 +1,290 @@
+<%- include('partials/header') %>
+
+<div class="order-hero wrap reveal">
+  <div class="eyebrow">The Menu</div>
+  <h1>Order Noir</h1>
+  <p>Fresh-baked &amp; handcrafted daily in Badaro — pickup or delivery across Beirut.</p>
+</div>
+
+<!-- sticky search + category quick-nav -->
+<nav class="catnav">
+  <div class="search-row wrap">
+    <input type="search" id="menuSearch" class="menu-search" placeholder="Search the menu…" aria-label="Search the menu" />
+  </div>
+  <div class="inner" id="catnav">
+    <% if (featured.length) { %><a class="pill" href="#sec-favourites">Favourites</a><% } %>
+    <% grouped.forEach(c => { %>
+      <a class="pill" href="#sec-<%= c.slug %>"><%= c.name %></a>
+    <% }) %>
+  </div>
+</nav>
+
+<div class="wrap">
+  <% if (featured.length) { %>
+    <section class="order-sec" id="sec-favourites">
+      <h2>House Favourites <small>Loved by Badaro</small></h2>
+      <div class="grid">
+        <% featured.forEach(p => { %>
+          <div class="ocard" data-id="<%= p.id %>" data-search="<%= (p.name + ' ' + (p.description || '')).toLowerCase() %>">
+            <a class="ocard-link" href="/product/<%= p.slug %>" aria-label="View <%= p.name %>">
+              <div class="thumb"><img src="<%= p.image %>" alt="<%= p.name %>" loading="lazy" /></div>
+              <div class="body">
+                <h3><%= p.name %></h3>
+                <%- include('partials/rating', { rating: p.rating, count: p.rating_count }) %>
+                <% if (p.description) { %><p><%= p.description %></p><% } %>
+              </div>
+            </a>
+            <div class="foot">
+              <% if (p.has_variants) { %>
+                <span class="price">From <%= money(p.min_price) %></span>
+                <a href="/product/<%= p.slug %>" class="add-btn">Choose Size</a>
+              <% } else { %>
+                <span class="price"><%= money(p.price) %></span>
+                <div class="qty-control" data-id="<%= p.id %>">
+                  <button class="add-btn" data-id="<%= p.id %>">Add +</button>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
+
+  <% grouped.forEach(c => { %>
+    <section class="order-sec" id="sec-<%= c.slug %>">
+      <h2><%= c.name %></h2>
+      <div class="grid">
+        <% c.products.forEach(p => { %>
+          <div class="ocard <%= p.available ? '' : 'sold' %>" data-id="<%= p.id %>" data-search="<%= (p.name + ' ' + (p.description || '')).toLowerCase() %>">
+            <a class="ocard-link" href="/product/<%= p.slug %>" aria-label="View <%= p.name %>">
+              <div class="thumb"><img src="<%= p.image %>" alt="<%= p.name %>" loading="lazy" /></div>
+              <div class="body">
+                <h3><%= p.name %></h3>
+                <%- include('partials/rating', { rating: p.rating, count: p.rating_count }) %>
+                <% if (p.description) { %><p><%= p.description %></p><% } %>
+              </div>
+            </a>
+            <div class="foot">
+              <% if (!p.available) { %>
+                <span class="price"><%= money(p.price) %></span>
+                <span class="soldout-tag">Sold out</span>
+              <% } else if (p.has_variants) { %>
+                <span class="price">From <%= money(p.min_price) %></span>
+                <a href="/product/<%= p.slug %>" class="add-btn">Choose Size</a>
+              <% } else { %>
+                <span class="price"><%= money(p.price) %></span>
+                <div class="qty-control" data-id="<%= p.id %>">
+                  <button class="add-btn" data-id="<%= p.id %>">Add +</button>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </section>
+  <% }) %>
+
+  <div id="noSearchResults" class="notice" style="display:none;">
+    <div class="mark">🔍</div>
+    <p class="muted">Nothing matches your search. Try a different word.</p>
+  </div>
+</div>
+
+<!-- floating cart + drawer -->
+<button class="fab" id="fab" aria-label="View bag">
+  🛍 <span class="fcount" id="fabCount">0</span>
+  <span class="ftotal" id="fabTotal">$0.00</span> · View Bag
+</button>
+
+<div class="drawer-overlay" id="overlay"></div>
+<aside class="drawer" id="drawer" aria-label="Your bag">
+  <div class="dhead">
+    <h3>Your Bag</h3>
+    <button class="dclose" id="dclose" aria-label="Close">&times;</button>
+  </div>
+  <div class="ditems" id="ditems"></div>
+  <div class="dfoot">
+    <div class="dtotal"><span>Total</span><span id="dtotalVal">$0.00</span></div>
+    <a href="/checkout" class="btn btn--solid btn--block">Checkout</a>
+    <button class="btn btn--ghost btn--block" id="keepShopping" style="margin-top:.6rem;">Keep Shopping</button>
+  </div>
+</aside>
+
+<script>
+(function () {
+  const money = (n) => '$' + Number(n || 0).toFixed(2);
+  const $ = (id) => document.getElementById(id);
+  const fab = $('fab'), overlay = $('overlay'), drawer = $('drawer');
+  let currentCart = { items: [], count: 0, total: 0 };
+
+  function cardControlHTML(id, qty) {
+    if (qty > 0) {
+      return `<div class="stepper card-stepper">
+        <button data-act="dec" data-id="${id}" aria-label="Remove one">−</button>
+        <span>${qty}</span>
+        <button data-act="inc" data-id="${id}" aria-label="Add one more">+</button>
+      </div>`;
+    }
+    return `<button class="add-btn" data-id="${id}">Add +</button>`;
+  }
+
+  function render(cart) {
+    currentCart = cart;
+
+    // floating button
+    $('fabCount').textContent = cart.count;
+    $('fabTotal').textContent = money(cart.total);
+    fab.classList.toggle('show', cart.count > 0);
+
+    // top-nav bag badge, so it doesn't go stale while browsing without a reload
+    const navCount = $('navBagCount');
+    if (navCount) {
+      navCount.textContent = cart.count;
+      navCount.style.display = cart.count > 0 ? '' : 'none';
+    }
+
+    // drawer
+    $('dtotalVal').textContent = money(cart.total);
+    const box = $('ditems');
+    if (!cart.items.length) {
+      box.innerHTML = '<div class="dempty">Your bag is empty.<br>Add something sweet 🍫</div>';
+    } else {
+      box.innerHTML = cart.items.map((it) => `
+        <div class="dline" data-id="${it.id}">
+          <img src="${it.image}" alt="">
+          <div>
+            <div class="dn">${it.name}</div>
+            <div class="dp">${money(it.price)} each</div>
+            <div class="stepper">
+              <button data-act="dec">−</button><span>${it.qty}</span><button data-act="inc">+</button>
+            </div>
+          </div>
+          <div class="dl">${money(it.line)}</div>
+        </div>`).join('');
+    }
+
+    // menu cards: swap between "Add +" and an inline stepper based on cart state
+    document.querySelectorAll('.qty-control').forEach((el) => {
+      const item = cart.items.find((it) => String(it.id) === String(el.dataset.id));
+      el.innerHTML = cardControlHTML(el.dataset.id, item ? item.qty : 0);
+    });
+  }
+
+  async function api(path, body) {
+    const res = await fetch(path, {
+      method: body ? 'POST' : 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return res.json();
+  }
+
+  // Add to bag (first tap, from a plain "Add +" button) — shows a spinner the
+  // instant it's tapped, since a real network round-trip has a moment of delay.
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.add-btn');
+    if (!btn) return;
+    btn.classList.add('is-loading');
+    try {
+      render(await api('/api/cart/add', { product_id: btn.dataset.id, qty: 1 }));
+    } catch (err) {
+      console.error(err);
+      btn.classList.remove('is-loading');
+    }
+  });
+
+  // Card steppers (once an item is already in the bag)
+  document.addEventListener('click', async (e) => {
+    const b = e.target.closest('.qty-control [data-act]');
+    if (!b) return;
+    const wrap = b.closest('.qty-control');
+    wrap.classList.add('is-loading');
+    const id = b.dataset.id;
+    const existing = currentCart.items.find((it) => String(it.id) === String(id));
+    const qty = (existing ? existing.qty : 0) + (b.dataset.act === 'inc' ? 1 : -1);
+    try {
+      render(await api('/api/cart/update', { product_id: id, qty: Math.max(0, qty) }));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      wrap.classList.remove('is-loading');
+    }
+  });
+
+  // Drawer steppers
+  $('ditems').addEventListener('click', async (e) => {
+    const b = e.target.closest('button[data-act]');
+    if (!b) return;
+    const line = b.closest('.dline');
+    line.classList.add('is-loading');
+    const id = line.dataset.id;
+    const qty = parseInt(line.querySelector('.stepper span').textContent, 10);
+    const next = b.dataset.act === 'inc' ? qty + 1 : qty - 1;
+    try {
+      render(await api('/api/cart/update', { product_id: id, qty: next }));
+    } catch (err) {
+      console.error(err);
+      line.classList.remove('is-loading');
+    }
+  });
+
+  // open / close drawer
+  const open = () => { overlay.classList.add('open'); drawer.classList.add('open'); };
+  const close = () => { overlay.classList.remove('open'); drawer.classList.remove('open'); };
+  fab.addEventListener('click', open);
+  overlay.addEventListener('click', close);
+  $('dclose').addEventListener('click', close);
+  $('keepShopping').addEventListener('click', close);
+
+  // scroll-spy for category pills
+  const pills = [...document.querySelectorAll('.catnav .pill')];
+  const byId = (id) => pills.find((p) => p.getAttribute('href') === '#' + id);
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (en.isIntersecting) {
+        pills.forEach((p) => p.classList.remove('active'));
+        const active = byId(en.target.id);
+        if (active) { active.classList.add('active'); active.scrollIntoView({ inline: 'center', block: 'nearest' }); }
+      }
+    });
+  }, { rootMargin: '-140px 0px -70% 0px' });
+  document.querySelectorAll('.order-sec').forEach((s) => obs.observe(s));
+
+  // Live menu search — filters the cards already on the page, no server round-trip.
+  const searchInput = $('menuSearch');
+  const sections = [...document.querySelectorAll('.order-sec')];
+  const catnavPills = $('catnav');
+  const noResults = $('noSearchResults');
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+
+    if (!q) {
+      sections.forEach((s) => { s.style.display = ''; s.querySelectorAll('.ocard').forEach((c) => { c.style.display = ''; }); });
+      catnavPills.style.display = '';
+      noResults.style.display = 'none';
+      return;
+    }
+
+    catnavPills.style.display = 'none';
+    let anyVisible = false;
+    sections.forEach((s) => {
+      let sectionHasMatch = false;
+      s.querySelectorAll('.ocard').forEach((c) => {
+        const match = (c.dataset.search || '').includes(q);
+        c.style.display = match ? '' : 'none';
+        if (match) sectionHasMatch = true;
+      });
+      s.style.display = sectionHasMatch ? '' : 'none';
+      if (sectionHasMatch) anyVisible = true;
+    });
+    noResults.style.display = anyVisible ? 'none' : '';
+  });
+
+  // initial state
+  api('/api/cart').then(render);
+})();
+</script>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,137 @@
+<%- include('partials/header') %>
+
+<div class="wrap">
+  <section class="block">
+    <div class="eyebrow">Checkout</div>
+    <h2 style="margin-bottom:2rem;">Almost yours</h2>
+
+    <form action="/checkout" method="POST" class="layout-2" id="checkoutForm">
+      <div class="panel">
+        <% if (error) { %><div class="alert"><%= error %></div><% } %>
+
+        <div class="form-grid">
+          <div class="full">
+            <label for="customer_name">Your Name *</label>
+            <input id="customer_name" name="customer_name" required />
+          </div>
+          <div class="full">
+            <label for="phone">Phone Number *</label>
+            <input id="phone" name="phone" placeholder="+961 ..." required />
+          </div>
+        </div>
+
+        <label>How would you like it?</label>
+        <div class="radio-row">
+          <label><input type="radio" name="method" value="delivery" checked data-method /> Delivery</label>
+          <label><input type="radio" name="method" value="pickup" data-method /> Pickup in Badaro</label>
+        </div>
+        <p id="deliveryFeeNote" class="muted" style="font-size:.82rem; margin-top:.5rem;">
+          Delivery fee depends on your area and isn't charged online — we confirm it by phone before your order is final.
+        </p>
+
+        <!-- When -->
+        <label>When?</label>
+        <div class="radio-row">
+          <label><input type="radio" name="schedule_type" value="asap" checked data-sched /> As soon as possible</label>
+          <label><input type="radio" name="schedule_type" value="scheduled" data-sched /> Schedule for later</label>
+        </div>
+        <div id="scheduleFields" class="hide" style="display:none; gap:1rem; margin-top:.6rem;">
+          <div class="form-grid">
+            <div>
+              <label for="fulfill_date">Date</label>
+              <input id="fulfill_date" name="fulfill_date" type="date" />
+            </div>
+            <div>
+              <label for="fulfill_time">Time</label>
+              <input id="fulfill_time" name="fulfill_time" type="time" />
+            </div>
+          </div>
+          <p class="muted" style="font-size:.8rem; margin-top:.3rem;">Cakes &amp; large boxes: please order at least 24h ahead.</p>
+        </div>
+
+        <!-- Delivery address (personal) -->
+        <div id="addrBlock">
+          <label for="address">Delivery Address</label>
+          <textarea id="address" name="address" rows="2" placeholder="Street, building, floor, area"></textarea>
+        </div>
+
+        <!-- Cake / order message -->
+        <label for="cake_message">Special Instructions (optional)</label>
+        <input id="cake_message" name="cake_message" placeholder="e.g. a cake message like 'Happy Birthday Maya 🤍', or any other request" />
+
+        <!-- Gift -->
+        <label style="display:flex; align-items:center; gap:.6rem; text-transform:none; letter-spacing:0; color:var(--ink); font-size:.98rem; margin-top:1.4rem; cursor:pointer;">
+          <input type="checkbox" id="is_gift" name="is_gift" value="1" style="width:auto;" /> 🎁 This is a gift — send it to someone
+        </label>
+
+        <div id="giftFields" style="display:none; margin-top:.4rem; padding:1rem 1.1rem; border:1px solid var(--coral-soft); border-radius:var(--radius); background:var(--cream);">
+          <div class="form-grid">
+            <div>
+              <label for="recipient_name">Recipient's Name</label>
+              <input id="recipient_name" name="recipient_name" />
+            </div>
+            <div>
+              <label for="recipient_phone">Recipient's Phone</label>
+              <input id="recipient_phone" name="recipient_phone" placeholder="+961 ..." />
+            </div>
+          </div>
+          <div id="recipientAddrBlock">
+            <label for="recipient_address">Recipient's Delivery Address</label>
+            <textarea id="recipient_address" name="recipient_address" rows="2" placeholder="Where should we deliver the gift?"></textarea>
+          </div>
+          <label for="gift_message">Gift Note (we'll include a card)</label>
+          <textarea id="gift_message" name="gift_message" rows="2" placeholder="A little note for them…"></textarea>
+        </div>
+
+        <label for="notes" style="margin-top:1.4rem;">Order Notes (optional)</label>
+        <textarea id="notes" name="notes" rows="2" placeholder="Anything else we should know?"></textarea>
+
+        <button type="submit" class="btn btn--solid btn--block" style="margin-top:1.6rem;">Place Order</button>
+        <p class="muted" style="font-size:.82rem; margin-top:1rem; text-align:center;">Pay on delivery or pickup · We'll call to confirm.</p>
+      </div>
+
+      <aside class="panel order-summary">
+        <h3 style="font-size:1.4rem;">Your Order</h3>
+        <% cart.items.forEach(it => { %>
+          <div class="summary"><span><%= it.qty %> × <%= it.product.name %><%= it.variant ? ' (' + it.variant.label + ')' : '' %></span><span><%= money(it.line) %></span></div>
+        <% }) %>
+        <div class="summary total"><span>Total</span><span><%= money(cart.total) %></span></div>
+        <p class="muted" style="font-size:.8rem; margin-top:1rem;">Delivery fee (if any) confirmed by phone.</p>
+      </aside>
+    </form>
+  </section>
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const show = (el, on) => { el.style.display = on ? '' : 'none'; };
+
+  // schedule fields
+  document.querySelectorAll('[data-sched]').forEach((r) => r.addEventListener('change', () => {
+    show($('scheduleFields'), document.querySelector('[data-sched]:checked').value === 'scheduled');
+  }));
+
+  // gift fields
+  const gift = $('is_gift');
+  const syncGift = () => {
+    show($('giftFields'), gift.checked);
+    // when it's a gift + delivery, the personal address block is hidden (parcel goes to recipient)
+    syncAddr();
+  };
+  gift.addEventListener('change', syncGift);
+
+  // delivery vs pickup address visibility
+  function syncAddr() {
+    const isDelivery = document.querySelector('[data-method]:checked').value === 'delivery';
+    show($('addrBlock'), isDelivery && !gift.checked);
+    show($('recipientAddrBlock'), isDelivery); // recipient address only matters for delivery
+    show($('deliveryFeeNote'), isDelivery); // no delivery fee to worry about on pickup
+  }
+  document.querySelectorAll('[data-method]').forEach((r) => r.addEventListener('change', syncAddr));
+
+  syncAddr();
+})();
+</script>
+
+<%- include('partials/footer') %>

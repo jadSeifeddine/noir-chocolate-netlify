@@ -1,0 +1,97 @@
+<%- include('partials/header') %>
+
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Manage</div>
+    <h1>Orders</h1>
+    <div class="sub"><%= counts.all %> orders · <%= counts.new %> awaiting confirmation</div>
+  </div>
+  <div class="view-toggle">
+    <a href="/admin/orders?view=list<%= status !== 'all' ? '&status=' + status : '' %>" class="<%= view === 'list' ? 'on' : '' %>">List</a>
+    <a href="/admin/orders?view=board" class="<%= view === 'board' ? 'on' : '' %>">Board</a>
+  </div>
+</div>
+
+<form class="search-box order-search" action="/admin/orders" method="GET">
+  <input type="hidden" name="view" value="<%= view %>" />
+  <% if (status !== 'all') { %><input type="hidden" name="status" value="<%= status %>" /><% } %>
+  <input type="text" name="q" value="<%= q %>" placeholder="Search name or phone…" />
+  <input type="date" name="date" value="<%= date %>" />
+  <button class="btn btn--ghost btn--sm" type="submit">Filter</button>
+  <% if (q || date) { %><a href="/admin/orders?view=<%= view %>" class="back-link">Clear</a><% } %>
+</form>
+
+<% if (view === 'list') { %>
+  <div class="toolbar">
+    <div class="tabs">
+      <a href="/admin/orders?status=all" class="<%= status === 'all' ? 'on' : '' %>">All <span class="cnt"><%= counts.all %></span></a>
+      <% statuses.forEach(s => { %>
+        <a href="/admin/orders?status=<%= s %>" class="<%= status === s ? 'on' : '' %>"><%= s %> <span class="cnt"><%= counts[s] %></span></a>
+      <% }) %>
+    </div>
+  </div>
+
+  <% if (!orders.length) { %>
+    <div class="empty">No orders in this view yet.</div>
+  <% } else { %>
+    <!-- Desktop: table -->
+    <div class="tbl-wrap hide-mobile">
+      <table class="data">
+        <thead><tr><th>#</th><th>Customer</th><th>Contact</th><th>Method</th><th>Items</th><th>Total</th><th>Status</th><th>Placed</th><th></th></tr></thead>
+        <tbody>
+          <% orders.forEach(o => { %>
+            <tr>
+              <td class="mono">#<%= o.id %></td>
+              <td class="name-cell"><%= o.customer_name %><% if (o.is_gift) { %> 🎁<% } %></td>
+              <td class="muted"><%= o.phone %></td>
+              <td style="text-transform:capitalize;"><%= o.method %></td>
+              <td class="mono"><%= o.item_count %></td>
+              <td class="mono"><%= money(o.total) %></td>
+              <td><span class="badge <%= o.status %>"><%= o.status %></span></td>
+              <td class="muted mono"><%= formatDate(o.created_at) %></td>
+              <td><a href="/admin/orders/<%= o.id %>" class="btn-mini">Open</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Phone: tappable cards -->
+    <div class="order-cards show-mobile">
+      <% orders.forEach(o => { %>
+        <a class="ocm" href="/admin/orders/<%= o.id %>">
+          <div class="r1">
+            <span class="cust"><%= o.customer_name %><% if (o.is_gift) { %> 🎁<% } %></span>
+            <span class="amt"><%= money(o.total) %></span>
+          </div>
+          <div class="r2">
+            <span class="badge <%= o.status %>"><%= o.status %></span>
+            <span class="meta">#<%= o.id %> · <%= o.item_count %> items · <%= o.method %></span>
+          </div>
+          <div class="meta"><%= formatDate(o.created_at) %></div>
+        </a>
+      <% }) %>
+    </div>
+  <% } %>
+
+<% } else { %>
+  <!-- Board / kanban view (stacks vertically on phones via CSS) -->
+  <div class="board">
+    <% statuses.forEach(s => {
+         const col = orders.filter(o => o.status === s); %>
+      <div class="col">
+        <h3><%= s %> <span><%= col.length %></span></h3>
+        <% col.forEach(o => { %>
+          <a class="oc" href="/admin/orders/<%= o.id %>">
+            <div class="t"><span class="cust"><%= o.customer_name %><% if (o.is_gift) { %> 🎁<% } %></span><span class="amt"><%= money(o.total) %></span></div>
+            <div class="meta">#<%= o.id %> · <%= o.item_count %> items · <%= o.method %></div>
+            <div class="meta"><%= formatDate(o.created_at) %></div>
+          </a>
+        <% }) %>
+        <% if (!col.length) { %><div class="meta" style="padding:.4rem .3rem; color:var(--muted);">—</div><% } %>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+
+<%- include('partials/footer') %>

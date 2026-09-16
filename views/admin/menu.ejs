@@ -1,0 +1,76 @@
+<%- include('partials/header') %>
+
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Manage</div>
+    <h1>Menu &amp; Products</h1>
+    <div class="sub"><%= counts.total %> products · <%= counts.soldOut %> sold out</div>
+  </div>
+  <div class="head-actions">
+    <a href="/admin/products/new" class="btn btn--solid btn--sm">+ Add Product</a>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="tabs">
+    <a href="/admin/menu" class="<%= !catFilter ? 'on' : '' %>">All</a>
+    <% cats.forEach(c => { %>
+      <a href="/admin/menu?category=<%= c.slug %>" class="<%= catFilter === c.slug ? 'on' : '' %>"><%= c.name %></a>
+    <% }) %>
+  </div>
+  <form class="search-box" action="/admin/menu" method="GET">
+    <% if (catFilter) { %><input type="hidden" name="category" value="<%= catFilter %>" /><% } %>
+    <input type="text" name="q" value="<%= q %>" placeholder="Search products…" />
+    <button class="btn btn--ghost btn--sm" type="submit">Search</button>
+  </form>
+</div>
+
+<% if (!products.length) { %>
+  <div class="empty">No products match. <a href="/admin/menu" class="back-link">Clear filters</a></div>
+<% } else { %>
+  <div class="mgrid">
+    <% products.forEach(p => { %>
+      <div class="mcard <%= p.available ? '' : 'sold' %>">
+        <div class="top">
+          <img src="<%= p.image %>" alt="<%= p.name %>" />
+          <div class="flags">
+            <% if (p.featured) { %><span class="badge star">★ Featured</span><% } %>
+            <span class="badge <%= p.available ? 'avail' : 'sold' %>"><%= p.available ? 'Available' : 'Sold out' %></span>
+          </div>
+          <% if (p.category_id) { %>
+            <div class="move-btns move-btns--card">
+              <form action="/admin/products/<%= p.id %>/move" method="POST">
+                <input type="hidden" name="direction" value="up" />
+                <input type="hidden" name="redirect" value="<%= currentPath %><%= catFilter ? '?category=' + catFilter : '' %>" />
+                <button type="submit" class="move-btn" aria-label="Move up">▲</button>
+              </form>
+              <form action="/admin/products/<%= p.id %>/move" method="POST">
+                <input type="hidden" name="direction" value="down" />
+                <input type="hidden" name="redirect" value="<%= currentPath %><%= catFilter ? '?category=' + catFilter : '' %>" />
+                <button type="submit" class="move-btn" aria-label="Move down">▼</button>
+              </form>
+            </div>
+          <% } %>
+        </div>
+        <div class="info">
+          <div class="nm"><%= p.name %></div>
+          <div class="meta">
+            <span class="cat"><%= p.category_name || 'Uncategorised' %></span>
+            <span class="pr"><%= money(p.price) %></span>
+          </div>
+        </div>
+        <div class="acts">
+          <a href="/admin/products/<%= p.id %>/edit" class="btn-mini">Edit</a>
+          <form action="/admin/products/<%= p.id %>/delete" method="POST" onsubmit="return confirm('Delete <%= p.name.replace(/'/g, '') %>?')">
+            <button type="submit" class="btn-mini danger">Delete</button>
+          </form>
+          <form action="/admin/products/<%= p.id %>/toggle" method="POST" class="toggle-form">
+            <button type="submit" class="btn-mini warn"><%= p.available ? 'Mark Sold Out' : 'Restock' %></button>
+          </form>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+
+<%- include('partials/footer') %>

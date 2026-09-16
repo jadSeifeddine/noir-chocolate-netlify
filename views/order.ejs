@@ -1,0 +1,48 @@
+<%- include('partials/header') %>
+
+<div class="wrap">
+  <section class="block">
+    <div class="notice">
+      <div class="mark">✓</div>
+      <div class="eyebrow" style="margin-top:1rem;">Order #<%= order.id %> confirmed</div>
+      <h2>Thank you, <%= order.customer_name.split(' ')[0] %>!</h2>
+      <p class="muted">We've received your order and will call <strong style="color:var(--ink)"><%= order.phone %></strong> shortly to confirm.</p>
+    </div>
+
+    <div class="layout-2" style="padding-top:0;">
+      <div class="panel">
+        <h3 style="font-size:1.4rem;">Order Details</h3>
+        <% items.forEach(it => { %>
+          <div class="summary"><span><%= it.quantity %> × <%= it.product_name %></span><span><%= money(it.unit_price * it.quantity) %></span></div>
+        <% }) %>
+        <div class="summary total"><span>Total</span><span><%= money(order.total) %></span></div>
+        <% if (order.schedule_type === 'scheduled' && order.fulfill_at) { %>
+          <p class="muted" style="margin-top:1rem;">⏰ Scheduled for <strong style="color:var(--ink)"><%= order.fulfill_at %></strong></p>
+        <% } %>
+        <% if (order.cake_message) { %>
+          <p class="muted" style="margin-top:.4rem;">🎂 On the cake: <em>“<%= order.cake_message %>”</em></p>
+        <% } %>
+      </div>
+      <aside class="panel">
+        <% if (order.is_gift) { %>
+          <h3 style="font-size:1.4rem;">🎁 Gift <%= order.method === 'pickup' ? 'Pickup' : 'Delivery' %></h3>
+          <p class="muted">To <strong style="color:var(--ink)"><%= order.recipient_name %></strong><%= order.recipient_phone ? ' · ' + order.recipient_phone : '' %></p>
+          <% if (order.method === 'delivery' && order.recipient_address) { %><p class="muted" style="margin-top:.4rem;"><%= order.recipient_address %></p><% } %>
+          <% if (order.gift_message) { %><p class="muted" style="margin-top:.6rem;">Note: <em>“<%= order.gift_message %>”</em></p><% } %>
+        <% } else { %>
+          <h3 style="font-size:1.4rem;"><%= order.method === 'pickup' ? 'Pickup' : 'Delivery' %></h3>
+          <% if (order.method === 'delivery') { %>
+            <p class="muted"><%= order.address %></p>
+          <% } else { %>
+            <p class="muted">Ready for pickup at our Badaro counter.</p>
+          <% } %>
+        <% } %>
+        <% if (order.notes) { %><p class="muted" style="margin-top:1rem;"><em>“<%= order.notes %>”</em></p><% } %>
+        <a href="/shop" class="btn btn--ghost btn--block" style="margin-top:1.4rem;">Order Something Else</a>
+        <a href="/" class="btn btn--block" style="margin-top:.7rem; border-color:transparent; background:transparent;">Back to Home</a>
+      </aside>
+    </div>
+  </section>
+</div>
+
+<%- include('partials/footer') %>
